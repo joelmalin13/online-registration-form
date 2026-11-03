@@ -51,11 +51,12 @@
                   placeholder="e.g. Rahul Sharma" 
                   required 
                   minlength="3"
-                  pattern="[A-Za-z\s]{3,}"
-                  title="Full name must contain only alphabets and spaces (no numbers or symbols)"
+                  maxlength="50"
+                  pattern="[A-Za-z][A-Za-z .'-]{2,49}"
+                  title="Use letters only (3-50 characters)"
                 >
-                <span class="field-helper">Please enter at least 3 alphabetic characters (letters and spaces only, no numbers).</span>
-                <p class="form-hint">Enter your full official name (alphabets only, no numbers).</p>
+                <span class="field-helper">Name must contain letters only (3-50 characters).</span>
+                <p class="form-hint">Use letters, spaces, dots, apostrophes or hyphens (3-50 characters).</p>
               </div>
             </div>
 
@@ -67,13 +68,13 @@
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="student@college.com" 
-                  pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[cC][oO][mM]"
-                  title="Email must end with .com"
+                  placeholder="name@gmail.com" 
+                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                  title="Enter a valid email address (for example, name@gmail.com)"
                   required
                 >
-                <span class="field-helper">Please enter a valid email address ending with .com</span>
-                <p class="form-hint">Email must end with .com (e.g. student@domain.com).</p>
+                <span class="field-helper">Enter a valid email address (for example, name@gmail.com).</span>
+                <p class="form-hint">Enter a valid email address (e.g. name@gmail.com).</p>
               </div>
             </div>
 
@@ -103,9 +104,11 @@
                   type="date" 
                   id="dob" 
                   name="dob" 
+                  min="1966-01-01"
+                  max="2010-12-31"
                   required
                 >
-                <p class="form-hint">Date of birth must be a past date (today is not accepted).</p>
+                <p class="form-hint">Must be between 16 and 60 years old (1966-01-01 to 2010-12-31).</p>
               </div>
             </div>
 
@@ -197,11 +200,13 @@
                 id="address" 
                 name="address" 
                 rows="3" 
+                minlength="10"
                 maxlength="200" 
-                placeholder="Enter your complete postal address (max 200 characters)" 
+                placeholder="Enter your complete postal address (min 10, max 200 characters)" 
                 required
               ></textarea>
-              <span class="field-helper">Address is required (maximum 200 characters).</span>
+              <span class="field-helper">Address must be at least 10 characters.</span>
+              <p class="form-hint">Minimum 10 characters, must contain at least one letter.</p>
             </div>
           </div>
 

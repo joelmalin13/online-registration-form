@@ -8,8 +8,11 @@
  * - Server-side validation for all fields.
  * - Complete output sanitization using htmlspecialchars() to prevent XSS.
  * - Clean semantic HTML layout matching index.html with shared stylesheet.
- * - Strictly NO JavaScript or external libraries.
+ * - Strictly NO JavaScript, NO jQuery, NO external libraries.
  */
+
+// Set default timezone to Asia/Kolkata (IST)
+date_default_timezone_set('Asia/Kolkata');
 
 // -----------------------------------------------------------------------------
 // 1. HTTP METHOD CHECK
@@ -37,7 +40,8 @@ function sanitize(string $data): string {
 // 3. RETRIEVE AND TRIM FORM DATA
 // -----------------------------------------------------------------------------
 $fullname  = trim($_POST['fullname'] ?? '');
-$email     = trim($_POST['email'] ?? '');
+// Convert email to lowercase before validating and displaying
+$email     = strtolower(trim($_POST['email'] ?? ''));
 $phone     = trim($_POST['phone'] ?? '');
 $dob       = trim($_POST['dob'] ?? '');
 $gender    = trim($_POST['gender'] ?? '');
@@ -69,40 +73,69 @@ $allowedInterests = [
     'Design'
 ];
 
+// Allowed TLDs to prevent common typos
+$allowedTlds = ['com', 'in', 'org', 'net', 'edu', 'ac.in', 'edu.in', 'co.in', 'gov.in', 'io', 'co'];
+
 // -----------------------------------------------------------------------------
 // 5. SERVER-SIDE VALIDATION
 // -----------------------------------------------------------------------------
 $errors = [];
 
-// Full Name: required, at least 3 characters, only alphabets and spaces (no numbers)
-if ($fullname === '') {
-    $errors[] = 'Full Name is required.';
-} elseif (mb_strlen($fullname) < 3) {
-    $errors[] = 'Full Name must be at least 3 characters long.';
-} elseif (!preg_match('/^[A-Za-z\s]{3,}$/', $fullname)) {
-    $errors[] = 'Full Name must contain only alphabets and spaces (no numbers or special symbols allowed).';
+// 1. Full Name: letters, spaces, dots, apostrophes and hyphens only (length 3-50, no digits)
+$nameLen = mb_strlen($fullname);
+if ($fullname === '' || $nameLen < 3 || $nameLen > 50 || !preg_match('/^[A-Za-z][A-Za-z .\'\-]{2,49}$/u', $fullname) || preg_match('/\d/', $fullname)) {
+    $errors['Full Name'] = 'Name must contain letters only.';
 }
 
-// Email: required, valid format, must end with .com
-if ($email === '') {
-    $errors[] = 'Email address is required.';
-} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = 'Please provide a valid email address (e.g. student@college.com).';
-} elseif (!preg_match('/\.com$/i', $email)) {
-    $errors[] = 'Email address must end with .com (e.g. student@domain.com). Other domain extensions are not accepted.';
+// 2. Email Address: valid format, allowed TLD, and DNS MX check
+$emailValid = true;
+if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $emailValid = false;
+} else {
+    $domain = substr(strrchr($email, '@'), 1);
+    // Require domain to end with a real TLD of at least 2 letters
+    if (!preg_match('/\.[a-z]{2,}$/', $domain)) {
+        $emailValid = false;
+    } else {
+        // Check domain ending against allowed list of TLDs
+        $hasAllowedTld = false;
+        foreach ($allowedTlds as $tld) {
+            $suffix = '.' . $tld;
+            if (str_ends_with($domain, $suffix) && strlen($domain) > strlen($suffix)) {
+                $hasAllowedTld = true;
+                break;
+            }
+        }
+
+        if (!$hasAllowedTld) {
+            $emailValid = false;
+        } else {
+            // Confirm domain can receive mail via checkdnsrr; skip if DNS check is unavailable or fails
+            if (function_exists('checkdnsrr')) {
+                $dnsOperational = @checkdnsrr('google.com', 'MX');
+                if ($dnsOperational) {
+                    if (!@checkdnsrr($domain, 'MX')) {
+                        $emailValid = false;
+                    }
+                }
+            }
+        }
+    }
 }
 
-// Phone Number: required, exactly 10 digits
-if ($phone === '') {
-    $errors[] = 'Phone number is required.';
-} elseif (!preg_match('/^[0-9]{10}$/', $phone)) {
-    $errors[] = 'Phone number must contain exactly 10 numeric digits.';
+if (!$emailValid) {
+    $errors['Email Address'] = 'Enter a valid email address (for example, name@gmail.com).';
 }
 
-// Date of Birth: required, valid calendar date, strictly before today (today is not accepted)
+// 3. Phone Number: required, exactly 10 digits
+if ($phone === '' || !preg_match('/^[0-9]{10}$/', $phone)) {
+    $errors['Phone Number'] = 'Phone number must contain exactly 10 numeric digits.';
+}
+
+// 4. Date of Birth: valid calendar date, not in the future, student between 16 and 60 years old
 $dobFormatted = '';
 if ($dob === '') {
-    $errors[] = 'Date of Birth is required.';
+    $errors['Date of Birth'] = 'Date of birth is required.';
 } else {
     $dobDate = DateTime::createFromFormat('Y-m-d', $dob);
     $dateErrors = DateTime::getLastErrors();
@@ -110,59 +143,61 @@ if ($dob === '') {
     $errorCount   = $dateErrors['error_count'] ?? 0;
 
     if (!$dobDate || $warningCount > 0 || $errorCount > 0) {
-        $errors[] = 'Date of Birth must be a valid date in YYYY-MM-DD format.';
+        $errors['Date of Birth'] = 'Date of birth must be a valid date in YYYY-MM-DD format.';
     } else {
+        $dobDate->setTime(0, 0, 0);
         $today = new DateTime('today');
-        if ($dobDate >= $today) {
-            $errors[] = 'Date of Birth cannot be today or a future date. It must be a past date.';
+        if ($dobDate > $today) {
+            $errors['Date of Birth'] = 'Date of birth cannot be in the future.';
         } else {
-            $dobFormatted = $dobDate->format('d F Y');
+            $age = $dobDate->diff($today)->y;
+            if ($age < 16) {
+                $errors['Date of Birth'] = 'You must be at least 16 years old to register.';
+            } elseif ($age > 60) {
+                $errors['Date of Birth'] = 'You must be at least 16 years old and not older than 60.';
+            } else {
+                // Consistent date format: "3 November 2026"
+                $dobFormatted = $dobDate->format('j F Y');
+            }
         }
     }
 }
 
-// Gender: required, must match allowed values
-if ($gender === '') {
-    $errors[] = 'Gender selection is required.';
-} elseif (!in_array($gender, $allowedGenders, true)) {
-    $errors[] = 'Invalid gender value selected.';
+// 5. Gender: required, must match allowed values
+if ($gender === '' || !in_array($gender, $allowedGenders, true)) {
+    $errors['Gender'] = 'Invalid gender value selected.';
 }
 
-// Course / Branch: required, must match allowed values
-if ($branch === '') {
-    $errors[] = 'Course / Branch selection is required.';
-} elseif (!in_array($branch, $allowedBranches, true)) {
-    $errors[] = 'Invalid course / branch selection.';
+// 6. Course / Branch: required, must match allowed values
+if ($branch === '' || !in_array($branch, $allowedBranches, true)) {
+    $errors['Course / Branch'] = 'Invalid course / branch selection.';
 }
 
-// Year of Study: required, must match allowed values
-if ($year === '') {
-    $errors[] = 'Year of Study selection is required.';
-} elseif (!in_array($year, $allowedYears, true)) {
-    $errors[] = 'Invalid year of study selection.';
+// 7. Year of Study: required, must match allowed values
+if ($year === '' || !in_array($year, $allowedYears, true)) {
+    $errors['Year of Study'] = 'Invalid year of study selection.';
 }
 
-// Technical Interests: optional, but all items must be in whitelist
+// 8. Technical Interests: optional, but all items must be in whitelist
 $validInterests = [];
 foreach ($rawInterests as $interest) {
     if (in_array($interest, $allowedInterests, true)) {
         $validInterests[] = $interest;
     } else {
-        $errors[] = 'Invalid interest selection detected.';
+        $errors['Interests'] = 'Invalid interest selection detected.';
         break;
     }
 }
 
-// Address: required, maximum 200 characters
-if ($address === '') {
-    $errors[] = 'Address is required.';
-} elseif (mb_strlen($address) > 200) {
-    $errors[] = 'Address must not exceed 200 characters.';
+// 9. Address: min 10 characters, max 200 characters, must contain at least one letter
+$addrLen = mb_strlen($address);
+if ($address === '' || $addrLen < 10 || $addrLen > 200 || !preg_match('/[a-zA-Z]/', $address)) {
+    $errors['Address'] = 'Address must be at least 10 characters.';
 }
 
-// Terms & Conditions: required checkbox
+// 10. Terms & Conditions: required checkbox
 if ($terms !== 'accepted') {
-    $errors[] = 'You must agree to the terms and conditions to complete registration.';
+    $errors['Terms & Conditions'] = 'You must agree to the terms and conditions to complete registration.';
 }
 
 // -----------------------------------------------------------------------------
@@ -208,8 +243,8 @@ if ($terms !== 'accepted') {
         <div class="alert alert-error">
           <strong>Validation Errors Detected:</strong>
           <ul class="error-list">
-            <?php foreach ($errors as $error): ?>
-              <li><?php echo sanitize($error); ?></li>
+            <?php foreach ($errors as $fieldName => $errorMsg): ?>
+              <li><strong><?php echo sanitize($fieldName); ?>:</strong> <?php echo sanitize($errorMsg); ?></li>
             <?php endforeach; ?>
           </ul>
         </div>
@@ -222,8 +257,9 @@ if ($terms !== 'accepted') {
     <?php else: ?>
       <?php
         // Success Details Setup
-        $regId = 'REG-' . date('Y') . '-' . str_pad((string)random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
-        $registrationTime = date('F j, Y \a\t g:i A');
+        $refId = 'REG-' . date('Y') . '-' . str_pad((string)random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+        // Time formatted with IST label: "3 November 2026, 12:19 PM IST"
+        $registrationTime = date('j F Y, g:i A \I\S\T');
       ?>
       <!-- SUCCESS VIEW: Displayed when all server validations pass -->
       <section class="card" id="result-card">
@@ -233,15 +269,15 @@ if ($terms !== 'accepted') {
           <h2>Registration Successful!</h2>
           <p>
             Congratulations, <strong><?php echo sanitize($fullname); ?></strong>! 
-            Your student registration has been verified and recorded successfully.
+            Your registration details have been received successfully.
           </p>
         </div>
 
         <!-- Registration Metadata Box -->
         <div class="meta-box">
           <div class="meta-item">
-            <span class="meta-label">Registration ID</span>
-            <span class="meta-val"><?php echo sanitize($regId); ?></span>
+            <span class="meta-label">Reference ID</span>
+            <span class="meta-val"><?php echo sanitize($refId); ?></span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Registration Date &amp; Time</span>
@@ -249,7 +285,7 @@ if ($terms !== 'accepted') {
           </div>
           <div class="meta-item">
             <span class="meta-label">Status</span>
-            <span class="meta-val" style="color: var(--state-valid);">Verified &amp; Recorded</span>
+            <span class="meta-val" style="color: var(--state-valid);">Submitted</span>
           </div>
         </div>
 
@@ -306,7 +342,7 @@ if ($terms !== 'accepted') {
               </tr>
               <tr>
                 <th scope="row">Terms &amp; Conditions</th>
-                <td>Accepted on <?php echo date('Y-m-d'); ?></td>
+                <td>Accepted on <?php echo date('j F Y'); ?></td>
               </tr>
             </tbody>
           </table>
