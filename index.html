@@ -53,10 +53,10 @@
                   minlength="3"
                   maxlength="50"
                   pattern="[A-Za-z][A-Za-z .'-]{2,49}"
-                  title="Use letters only (3-50 characters)"
+                  title="Letters only, 3-50 characters"
                 >
-                <span class="field-helper">Name must contain letters only (3-50 characters).</span>
-                <p class="form-hint">Use letters, spaces, dots, apostrophes or hyphens (3-50 characters).</p>
+                <span class="field-helper">Name must contain letters only. Numbers are not allowed.</span>
+                <p class="form-hint">Letters only, 3-50 characters (dots, spaces, hyphens allowed).</p>
               </div>
             </div>
 
@@ -69,12 +69,12 @@
                   id="email" 
                   name="email" 
                   placeholder="name@gmail.com" 
-                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-                  title="Enter a valid email address (for example, name@gmail.com)"
+                  pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}"
+                  title="Invalid email. Enter a valid address such as name@gmail.com"
                   required
                 >
-                <span class="field-helper">Enter a valid email address (for example, name@gmail.com).</span>
-                <p class="form-hint">Enter a valid email address (e.g. name@gmail.com).</p>
+                <span class="field-helper">Invalid email. Enter a valid address such as name@gmail.com</span>
+                <p class="form-hint">Enter a valid address such as name@gmail.com.</p>
               </div>
             </div>
 
@@ -202,11 +202,11 @@
                 rows="3" 
                 minlength="10"
                 maxlength="200" 
-                placeholder="Enter your complete postal address (min 10, max 200 characters)" 
+                placeholder="Enter complete address, e.g. 12 MG Road, Hubballi" 
                 required
               ></textarea>
-              <span class="field-helper">Address must be at least 10 characters.</span>
-              <p class="form-hint">Minimum 10 characters, must contain at least one letter.</p>
+              <span class="field-helper">Enter a complete address (at least 10 characters, for example house number, street, city).</span>
+              <p class="form-hint">At least 10 characters, including house number, street, city.</p>
             </div>
           </div>
 
