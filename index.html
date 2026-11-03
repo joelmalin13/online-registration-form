@@ -51,9 +51,11 @@
                   placeholder="e.g. Rahul Sharma" 
                   required 
                   minlength="3"
+                  pattern="[A-Za-z\s]{3,}"
+                  title="Full name must contain only alphabets and spaces (no numbers or symbols)"
                 >
-                <span class="field-helper">Please enter at least 3 characters.</span>
-                <p class="form-hint">Enter your full official name as per college records.</p>
+                <span class="field-helper">Please enter at least 3 alphabetic characters (letters and spaces only, no numbers).</span>
+                <p class="form-hint">Enter your full official name (alphabets only, no numbers).</p>
               </div>
             </div>
 
@@ -65,11 +67,13 @@
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="student@college.edu" 
+                  placeholder="student@college.com" 
+                  pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[cC][oO][mM]"
+                  title="Email must end with .com"
                   required
                 >
-                <span class="field-helper">Please enter a valid email address.</span>
-                <p class="form-hint">Confirmation will be sent to this email.</p>
+                <span class="field-helper">Please enter a valid email address ending with .com</span>
+                <p class="form-hint">Email must end with .com (e.g. student@domain.com).</p>
               </div>
             </div>
 
@@ -101,6 +105,7 @@
                   name="dob" 
                   required
                 >
+                <p class="form-hint">Date of birth must be a past date (today is not accepted).</p>
               </div>
             </div>
 

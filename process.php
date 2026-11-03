@@ -74,18 +74,22 @@ $allowedInterests = [
 // -----------------------------------------------------------------------------
 $errors = [];
 
-// Full Name: required, at least 3 characters
+// Full Name: required, at least 3 characters, only alphabets and spaces (no numbers)
 if ($fullname === '') {
     $errors[] = 'Full Name is required.';
 } elseif (mb_strlen($fullname) < 3) {
     $errors[] = 'Full Name must be at least 3 characters long.';
+} elseif (!preg_match('/^[A-Za-z\s]{3,}$/', $fullname)) {
+    $errors[] = 'Full Name must contain only alphabets and spaces (no numbers or special symbols allowed).';
 }
 
-// Email: required, valid format
+// Email: required, valid format, must end with .com
 if ($email === '') {
     $errors[] = 'Email address is required.';
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = 'Please provide a valid email address (e.g. student@college.edu).';
+    $errors[] = 'Please provide a valid email address (e.g. student@college.com).';
+} elseif (!preg_match('/\.com$/i', $email)) {
+    $errors[] = 'Email address must end with .com (e.g. student@domain.com). Other domain extensions are not accepted.';
 }
 
 // Phone Number: required, exactly 10 digits
@@ -95,7 +99,7 @@ if ($phone === '') {
     $errors[] = 'Phone number must contain exactly 10 numeric digits.';
 }
 
-// Date of Birth: required, valid calendar date, not in the future
+// Date of Birth: required, valid calendar date, strictly before today (today is not accepted)
 $dobFormatted = '';
 if ($dob === '') {
     $errors[] = 'Date of Birth is required.';
@@ -109,8 +113,8 @@ if ($dob === '') {
         $errors[] = 'Date of Birth must be a valid date in YYYY-MM-DD format.';
     } else {
         $today = new DateTime('today');
-        if ($dobDate > $today) {
-            $errors[] = 'Date of Birth cannot be in the future.';
+        if ($dobDate >= $today) {
+            $errors[] = 'Date of Birth cannot be today or a future date. It must be a past date.';
         } else {
             $dobFormatted = $dobDate->format('d F Y');
         }
