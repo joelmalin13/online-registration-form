@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Character encoding and responsive viewport -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Registration Form | VTU Web Technology Lab</title>
+
+  <!-- Google Fonts: Inter font family -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Shared CSS Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Semantic Header -->
+  <header id="page-header">
+    <div class="container header-inner">
+      <h1>VTU Web Technology Lab</h1>
+      <p>Department of Computer Science &amp; Engineering | Student Portal</p>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container">
+    <section class="card" id="registration-card">
+      <div class="card-header">
+        <h2>Online Registration Form</h2>
+        <p>Please enter your information below to register for the lab session.</p>
+      </div>
+
+      <!-- Registration Form: Dispatches to process.php via HTTP POST -->
+      <form id="registration-form" method="post" action="process.php">
+
+        <!-- 1. Personal Information Fieldset -->
+        <fieldset>
+          <legend>1. Personal Information</legend>
+          
+          <div class="form-grid">
+            <!-- Full Name Field -->
+            <div class="form-group form-group-full">
+              <label for="fullname">Full Name <span class="required-star"></span></label>
+              <div class="input-wrap">
+                <input 
+                  type="text" 
+                  id="fullname" 
+                  name="fullname" 
+                  placeholder="e.g. Rahul Sharma" 
+                  required 
+                  minlength="3"
+                >
+                <span class="field-helper">Please enter at least 3 characters.</span>
+                <p class="form-hint">Enter your full official name as per college records.</p>
+              </div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+              <label for="email">Email Address <span class="required-star"></span></label>
+              <div class="input-wrap">
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  placeholder="student@college.edu" 
+                  required
+                >
+                <span class="field-helper">Please enter a valid email address.</span>
+                <p class="form-hint">Confirmation will be sent to this email.</p>
+              </div>
+            </div>
+
+            <!-- Phone Number Field -->
+            <div class="form-group">
+              <label for="phone">Phone Number <span class="required-star"></span></label>
+              <div class="input-wrap">
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  placeholder="10-digit mobile number" 
+                  pattern="[0-9]{10}" 
+                  title="Enter 10 digits" 
+                  required
+                >
+                <span class="field-helper">Enter exactly 10 digits without spaces or dashes.</span>
+                <p class="form-hint">Valid 10-digit mobile number.</p>
+              </div>
+            </div>
+
+            <!-- Date of Birth Field -->
+            <div class="form-group">
+              <label for="dob">Date of Birth <span class="required-star"></span></label>
+              <div class="input-wrap">
+                <input 
+                  type="date" 
+                  id="dob" 
+                  name="dob" 
+                  required
+                >
+              </div>
+            </div>
+
+            <!-- Gender Radio Group Field -->
+            <div class="form-group">
+              <label>Gender <span class="required-star"></span></label>
+              <div class="options-group">
+                <span class="custom-option">
+                  <input type="radio" id="gender-male" name="gender" value="Male" class="custom-radio" required>
+                  <label for="gender-male">Male</label>
+                </span>
+                <span class="custom-option">
+                  <input type="radio" id="gender-female" name="gender" value="Female" class="custom-radio">
+                  <label for="gender-female">Female</label>
+                </span>
+                <span class="custom-option">
+                  <input type="radio" id="gender-other" name="gender" value="Other" class="custom-radio">
+                  <label for="gender-other">Other</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 2. Academic Details Fieldset -->
+        <fieldset>
+          <legend>2. Academic Details</legend>
+          
+          <div class="form-grid">
+            <!-- Course / Branch Dropdown -->
+            <div class="form-group">
+              <label for="branch">Course / Branch <span class="required-star"></span></label>
+              <select id="branch" name="branch" required>
+                <option value="" disabled selected>Select Branch</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Information Science">Information Science</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Mechanical">Mechanical</option>
+                <option value="Civil">Civil</option>
+              </select>
+            </div>
+
+            <!-- Year of Study Dropdown -->
+            <div class="form-group">
+              <label for="year">Year of Study <span class="required-star"></span></label>
+              <select id="year" name="year" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="1st">1st Year</option>
+                <option value="2nd">2nd Year</option>
+                <option value="3rd">3rd Year</option>
+                <option value="4th">4th Year</option>
+              </select>
+            </div>
+
+            <!-- Technical Interests Checkboxes -->
+            <div class="form-group form-group-full">
+              <label>Interests / Specializations</label>
+              <div class="options-group">
+                <span class="custom-option">
+                  <input type="checkbox" id="int-web" name="interests[]" value="Web Development" class="custom-checkbox">
+                  <label for="int-web">Web Development</label>
+                </span>
+                <span class="custom-option">
+                  <input type="checkbox" id="int-cyber" name="interests[]" value="Cybersecurity" class="custom-checkbox">
+                  <label for="int-cyber">Cybersecurity</label>
+                </span>
+                <span class="custom-option">
+                  <input type="checkbox" id="int-prog" name="interests[]" value="Programming" class="custom-checkbox">
+                  <label for="int-prog">Programming</label>
+                </span>
+                <span class="custom-option">
+                  <input type="checkbox" id="int-design" name="interests[]" value="Design" class="custom-checkbox">
+                  <label for="int-design">Design</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 3. Contact & Agreement Fieldset -->
+        <fieldset>
+          <legend>3. Residential Details &amp; Agreement</legend>
+          
+          <!-- Address Field -->
+          <div class="form-group">
+            <label for="address">Address <span class="required-star"></span></label>
+            <div class="input-wrap">
+              <textarea 
+                id="address" 
+                name="address" 
+                rows="3" 
+                maxlength="200" 
+                placeholder="Enter your complete postal address (max 200 characters)" 
+                required
+              ></textarea>
+              <span class="field-helper">Address is required (maximum 200 characters).</span>
+            </div>
+          </div>
+
+          <!-- Terms and Conditions Checkbox -->
+          <div class="checkbox-terms">
+            <input type="checkbox" id="terms" name="terms" value="accepted" class="custom-checkbox" required>
+            <label for="terms">
+              I agree to the laboratory rules, terms, and conditions of registration. <span class="required-star"></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Form Action Buttons -->
+        <div class="form-actions">
+          <button type="reset" class="btn btn-secondary">Reset</button>
+          <button type="submit" class="btn btn-primary">Submit Registration</button>
+        </div>
+
+      </form>
+    </section>
+  </main>
+
+  <!-- Semantic Footer -->
+  <footer>
+    <p>&copy; 2026 VTU Web Technology Lab. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
