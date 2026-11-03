@@ -52,11 +52,11 @@
                   required 
                   minlength="3"
                   maxlength="50"
-                  pattern="[A-Za-z][A-Za-z .'-]{2,49}"
-                  title="Letters only, 3-50 characters"
+                  pattern="[A-Za-z][A-Za-z .'\-]{2,49}"
+                  title="Letters only, 3 to 50 characters. Numbers are not allowed."
                 >
                 <span class="field-helper">Name must contain letters only. Numbers are not allowed.</span>
-                <p class="form-hint">Letters only, 3-50 characters (dots, spaces, hyphens allowed).</p>
+                <p class="form-hint">Letters only, 3 to 50 characters (dots, spaces, hyphens allowed).</p>
               </div>
             </div>
 
@@ -69,12 +69,12 @@
                   id="email" 
                   name="email" 
                   placeholder="name@gmail.com" 
-                  pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}"
-                  title="Invalid email. Enter a valid address such as name@gmail.com"
+                  pattern="[A-Za-z0-9._%+\-]+@gmail\.com"
+                  title="Enter a valid Gmail address, for example name@gmail.com"
                   required
                 >
-                <span class="field-helper">Invalid email. Enter a valid address such as name@gmail.com</span>
-                <p class="form-hint">Enter a valid address such as name@gmail.com.</p>
+                <span class="field-helper">Invalid email. Enter a valid Gmail address such as name@gmail.com</span>
+                <p class="form-hint">Enter a valid Gmail address, for example name@gmail.com.</p>
               </div>
             </div>
 
